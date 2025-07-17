@@ -29,6 +29,7 @@ const BuddyAid = () => {
 
   const speechTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const lastTranscriptRef = useRef<string>('');
+  const hasGreetingBeenSpoken = useRef(false);
   
   const { 
     isListening, 
@@ -359,14 +360,15 @@ const BuddyAid = () => {
   // Auto-speak greeting on first load
   useEffect(() => {
     const greeting = "What's happening? I'm here to help.";
-    if (messages.length === 0) {
+    if (messages.length === 0 && !hasGreetingBeenSpoken.current) {
+      hasGreetingBeenSpoken.current = true;
       const timer = setTimeout(() => {
         addMessage('assistant', greeting);
         speak(greeting);
       }, 1000);
       return () => clearTimeout(timer);
     }
-  }, []);
+  }, [messages.length, speak]);
 
   // Don't navigate to separate screen - keep everything in chat
   return (
