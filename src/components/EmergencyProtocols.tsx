@@ -1,14 +1,18 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ChevronRight, Phone, AlertTriangle, Heart, Droplets, Users, Baby } from 'lucide-react';
 import { Button } from './ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
+import { Message } from './ConversationHistory';
 
 interface EmergencyProtocolsProps {
   emergencyType: string;
   onBack: () => void;
+  messages: Message[];
+  onAddMessage: (type: 'user' | 'assistant', content: string) => void;
+  ttsSpeak: (text: string) => void;
 }
 
-const EmergencyProtocols = ({ emergencyType, onBack }: EmergencyProtocolsProps) => {
+const EmergencyProtocols = ({ emergencyType, onBack, messages, onAddMessage, ttsSpeak }: EmergencyProtocolsProps) => {
   const [currentStep, setCurrentStep] = useState(0);
   const [hasCalledEmergency, setHasCalledEmergency] = useState(false);
 
@@ -216,21 +220,45 @@ const EmergencyProtocols = ({ emergencyType, onBack }: EmergencyProtocolsProps) 
 
   const handleNext = () => {
     if (!isLastStep) {
-      setCurrentStep(currentStep + 1);
+      const nextStep = currentStep + 1;
+      setCurrentStep(nextStep);
+      
+      // Auto-speak next step
+      const nextInstruction = currentProtocol.steps[nextStep].instruction;
+      onAddMessage('assistant', nextInstruction);
+      ttsSpeak(nextInstruction);
     }
   };
 
   const handlePrevious = () => {
     if (currentStep > 0) {
-      setCurrentStep(currentStep - 1);
+      const prevStep = currentStep - 1;
+      setCurrentStep(prevStep);
+      
+      // Auto-speak previous step
+      const prevInstruction = currentProtocol.steps[prevStep].instruction;
+      onAddMessage('assistant', prevInstruction);
+      ttsSpeak(prevInstruction);
     }
   };
 
   const handleEmergencyCall = () => {
     setHasCalledEmergency(true);
+    const callMsg = "Calling emergency services now";
+    onAddMessage('assistant', callMsg);
+    ttsSpeak(callMsg);
     // In a real app, this would initiate emergency services call
-    console.log('Emergency call initiated');
+    window.open('tel:999', '_self');
   };
+
+  // Auto-speak first step when protocol loads
+  useEffect(() => {
+    if (currentStep === 0 && currentStepData) {
+      const instruction = currentStepData.instruction;
+      onAddMessage('assistant', instruction);
+      ttsSpeak(instruction);
+    }
+  }, [emergencyType]);
 
   return (
     <div className="min-h-screen px-6 py-8 flex flex-col">

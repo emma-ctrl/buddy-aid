@@ -1,19 +1,53 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Mic, MicOff, Phone, Heart, Droplets, Users } from 'lucide-react';
 import EmergencyProtocols from './EmergencyProtocols';
 import { supabase } from '@/integrations/supabase/client';
+import { ConversationHistory, Message } from './ConversationHistory';
+import { VoiceControls } from './VoiceControls';
+import { useTextToSpeech } from '@/hooks/useTextToSpeech';
 
 const BuddyAid = () => {
   const [isListening, setIsListening] = useState(false);
   const [activeEmergency, setActiveEmergency] = useState<string | null>(null);
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [currentResponse, setCurrentResponse] = useState<string>('');
   const [isProcessing, setIsProcessing] = useState(false);
+  
+  const { 
+    isPlaying, 
+    isPaused, 
+    isLoading: ttsLoading, 
+    currentText, 
+    speak, 
+    pause, 
+    resume, 
+    stop, 
+    replay 
+  } = useTextToSpeech();
+
+  const addMessage = (type: 'user' | 'assistant', content: string) => {
+    const message: Message = {
+      id: Date.now().toString(),
+      type,
+      content,
+      timestamp: new Date()
+    };
+    setMessages(prev => [...prev, message]);
+    return message;
+  };
 
   const handleVoiceToggle = () => {
     setIsListening(!isListening);
   };
 
   const handleQuickAction = (emergencyType: string) => {
+    const userMsg = `Help with ${emergencyType.replace('-', ' ')}`;
+    addMessage('user', userMsg);
+    
     setActiveEmergency(emergencyType);
+    const response = `I'm here to help with ${emergencyType.replace('-', ' ')}. Let me guide you through the steps.`;
+    addMessage('assistant', response);
+    speak(response);
   };
 
   const handleEmergencyCall = () => {
@@ -23,38 +57,65 @@ const BuddyAid = () => {
 
   const handleBackToMenu = () => {
     setActiveEmergency(null);
+    stop(); // Stop any current speech
   };
 
   const processEmergencyDescription = async (description: string) => {
     if (!description.trim()) return;
     
     setIsProcessing(true);
+    // Add user message
+    addMessage('user', description);
+    
     try {
       const { data, error } = await supabase.functions.invoke('process-emergency-description', {
         body: { description }
       });
 
       if (error) {
-        console.error('Error processing emergency:', error);
+        console.error('Error processing emergency description:', error);
+        const errorMsg = "I'm sorry, I couldn't process that. Please try describing the emergency again.";
+        addMessage('assistant', errorMsg);
+        speak(errorMsg);
         return;
       }
 
-      if (data?.emergencyType) {
+      if (data && data.emergencyType) {
         setActiveEmergency(data.emergencyType);
+        const response = `I understand this is about ${data.emergencyType.replace('-', ' ')}. Let me guide you through the proper steps.`;
+        addMessage('assistant', response);
+        speak(response);
       }
     } catch (error) {
-      console.error('Error:', error);
+      console.error('Error calling edge function:', error);
+      const errorMsg = "I'm having trouble connecting right now. Please call emergency services directly if this is urgent.";
+      addMessage('assistant', errorMsg);
+      speak(errorMsg);
     } finally {
       setIsProcessing(false);
     }
   };
 
-  // Show emergency protocols if an emergency is selected
+  // Auto-speak greeting on first load
+  useEffect(() => {
+    const greeting = "What's happening? I'm here to help.";
+    if (messages.length === 0) {
+      const timer = setTimeout(() => {
+        addMessage('assistant', greeting);
+        speak(greeting);
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+  }, []);
+
   if (activeEmergency) {
     return (
       <EmergencyProtocols 
         emergencyType={activeEmergency} 
         onBack={handleBackToMenu}
+        messages={messages}
+        onAddMessage={addMessage}
+        ttsSpeak={speak}
       />
     );
   }
@@ -88,6 +149,17 @@ const BuddyAid = () => {
               <Mic className="w-12 h-12 text-white" />
             )}
           </button>
+        </div>
+
+        {/* Voice Status Indicator */}
+        <div className="w-full max-w-md">
+          {(isPlaying || isPaused || ttsLoading) && (
+            <div className="flex items-center justify-center">
+              <div className={`w-4 h-4 rounded-full ${
+                isPlaying ? 'bg-green-500 animate-pulse' : 'bg-gray-400'
+              }`} />
+            </div>
+          )}
         </div>
 
         {/* Prompt Text */}
@@ -134,6 +206,21 @@ const BuddyAid = () => {
           </p>
         </div>
       </div>
+
+      {/* Voice Controls */}
+      <VoiceControls
+        isPlaying={isPlaying}
+        isPaused={isPaused}
+        isLoading={ttsLoading}
+        onPause={pause}
+        onResume={resume}
+        onStop={stop}
+        onReplay={replay}
+        currentText={currentText}
+      />
+
+      {/* Conversation History */}
+      <ConversationHistory messages={messages} />
 
       {/* Quick Action Buttons */}
       <div className="mt-12 animate-fade-in-delayed-2">
