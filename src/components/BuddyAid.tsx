@@ -172,39 +172,6 @@ const BuddyAid = () => {
           </p>
         </div>
 
-        {/* Demo Input for Testing OpenAI Integration */}
-        <div className="mt-4 max-w-md mx-auto">
-          <div className="flex gap-2">
-            <input
-              type="text"
-              placeholder="Describe the emergency..."
-              className="flex-1 px-3 py-2 border border-input rounded-md text-sm bg-background text-foreground"
-              onKeyPress={(e) => {
-                if (e.key === 'Enter') {
-                  processEmergencyDescription(e.currentTarget.value);
-                  e.currentTarget.value = '';
-                }
-              }}
-              disabled={isProcessing}
-            />
-            <button
-              onClick={() => {
-                const input = document.querySelector('input[type="text"]') as HTMLInputElement;
-                if (input) {
-                  processEmergencyDescription(input.value);
-                  input.value = '';
-                }
-              }}
-              disabled={isProcessing}
-              className="px-3 py-2 bg-primary text-primary-foreground rounded-md text-sm hover:bg-primary/90 disabled:opacity-50"
-            >
-              {isProcessing ? 'Processing...' : 'Submit'}
-            </button>
-          </div>
-          <p className="text-xs text-muted-foreground mt-1 text-center">
-            Try: "person not breathing", "severe bleeding", "someone choking"
-          </p>
-        </div>
       </div>
 
       {/* Voice Controls */}
