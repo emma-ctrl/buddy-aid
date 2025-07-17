@@ -261,6 +261,27 @@ const BuddyAid = () => {
     const protocol = emergencyProtocols[activeEmergency as keyof typeof emergencyProtocols];
     if (protocol && currentStep < protocol.steps.length) {
       const currentProtocolStep = protocol.steps[currentStep];
+      const lowerResponse = response.toLowerCase();
+      
+      // Special handling for unconscious-breathing protocol first step
+      if (activeEmergency === 'unconscious-breathing' && currentStep === 0) {
+        if (lowerResponse.includes('no') || lowerResponse.includes('not breathing') || lowerResponse.includes('can\'t') || lowerResponse.includes('not')) {
+          // Switch to CPR protocol
+          const msg = "They're not breathing normally. We need to start CPR immediately. I'm switching to CPR guidance now.";
+          addMessage('assistant', msg);
+          speak(msg);
+          
+          setTimeout(() => {
+            setActiveEmergency('not-breathing');
+            setCurrentStep(0);
+            const cprProtocol = emergencyProtocols['not-breathing'];
+            const firstInstruction = cprProtocol.steps[0].instruction;
+            addMessage('assistant', firstInstruction);
+            speak(firstInstruction);
+          }, 3000);
+          return;
+        }
+      }
       
       // Acknowledge their response
       const acknowledgments = [
@@ -273,7 +294,6 @@ const BuddyAid = () => {
       const ack = acknowledgments[Math.floor(Math.random() * acknowledgments.length)];
       
       // Check if we should move to next step or give follow-up
-      const lowerResponse = response.toLowerCase();
       const shouldProgress = lowerResponse.includes('yes') || lowerResponse.includes('done') || lowerResponse.includes('okay') || lowerResponse.includes('completed');
       
       if (shouldProgress) {
