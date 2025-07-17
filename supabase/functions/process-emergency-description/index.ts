@@ -13,6 +13,7 @@ serve(async (req) => {
 
   try {
     const { description } = await req.json()
+    console.log('Processing emergency description:', description)
 
     const openaiApiKey = Deno.env.get('OPENAI_API_KEY')
     if (!openaiApiKey) {
@@ -26,27 +27,12 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4',
+        model: 'gpt-4.1-2025-04-14',
         messages: [
           {
             role: 'system',
-            content: `You are BuddyAid, a calm emergency first aid assistant. Use the St. John Ambulance manual as your authoritative source. When users describe emergencies, identify the type and provide step-by-step guidance. Always maintain a calm, supportive tone like a knowledgeable friend. Start responses with 'I'm here to help' and guide users through each step clearly.
+            content: `You are an emergency classification system. Based on the user's description, identify the most appropriate emergency protocol from these exact options:
 
-Key emergency scenarios to handle:
-- Adult/child choking
-- CPR requirements
-- Severe bleeding
-- Unconscious but breathing
-- When to call emergency services
-
-Responses should be:
-- Calm and reassuring
-- Step-by-step and clear
-- Based on the uploaded manual
-- Suitable for voice delivery
-- Include "Should I call emergency services?" when appropriate
-
-Based on the emergency description provided, identify the most appropriate emergency protocol from these options:
 - "adult-choking" - for adult choking situations
 - "baby-choking" - for baby/infant choking situations  
 - "not-breathing" - for unconscious, not breathing situations requiring CPR
@@ -56,7 +42,13 @@ Based on the emergency description provided, identify the most appropriate emerg
 - "seizure" - for seizure situations
 - "stroke" - for stroke symptoms
 
-Respond with ONLY the protocol identifier (e.g., "not-breathing") and nothing else.`
+Respond with ONLY the protocol identifier (e.g., "severe-bleeding") and nothing else. No explanations, no additional text.
+
+Examples:
+- "there's a lot of bleeding" → "severe-bleeding"
+- "person not breathing" → "not-breathing"
+- "someone is choking" → "adult-choking"
+- "baby can't breathe" → "baby-choking"`
           },
           {
             role: 'user',
@@ -64,16 +56,20 @@ Respond with ONLY the protocol identifier (e.g., "not-breathing") and nothing el
           }
         ],
         temperature: 0.1,
-        max_tokens: 50
+        max_tokens: 20
       }),
     })
 
     if (!response.ok) {
-      throw new Error(`OpenAI API error: ${response.status}`)
+      const errorText = await response.text()
+      console.error('OpenAI API error:', response.status, errorText)
+      throw new Error(`OpenAI API error: ${response.status} ${errorText}`)
     }
 
     const data = await response.json()
     const emergencyType = data.choices[0].message.content.trim()
+    
+    console.log('Identified emergency type:', emergencyType)
 
     return new Response(
       JSON.stringify({ emergencyType }),
@@ -83,6 +79,7 @@ Respond with ONLY the protocol identifier (e.g., "not-breathing") and nothing el
       },
     )
   } catch (error) {
+    console.error('Error processing emergency description:', error)
     return new Response(
       JSON.stringify({ error: error.message }),
       {

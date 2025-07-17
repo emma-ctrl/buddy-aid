@@ -92,27 +92,44 @@ const BuddyAid = () => {
     if (!description.trim()) return;
     
     setIsProcessing(true);
+    console.log('Processing emergency description:', description);
+    
     // Add user message
     addMessage('user', description);
     
     try {
+      console.log('Calling process-emergency-description edge function...');
       const { data, error } = await supabase.functions.invoke('process-emergency-description', {
         body: { description }
       });
 
+      console.log('Edge function response:', { data, error });
+
       if (error) {
         console.error('Error processing emergency description:', error);
-        const errorMsg = "I'm sorry, I couldn't process that. Please try describing the emergency again.";
+        const errorMsg = "I'm sorry, I couldn't process that. Please try describing the emergency again or use the quick action buttons.";
         addMessage('assistant', errorMsg);
         speak(errorMsg);
         return;
       }
 
       if (data && data.emergencyType) {
+        console.log('Setting active emergency to:', data.emergencyType);
+        
+        // Set the active emergency first
         setActiveEmergency(data.emergencyType);
+        
+        // Then add the response message
         const response = `I understand this is about ${data.emergencyType.replace('-', ' ')}. Let me guide you through the proper steps.`;
         addMessage('assistant', response);
         speak(response);
+        
+        console.log('Active emergency set, should navigate to protocols');
+      } else {
+        console.warn('No emergency type returned from edge function');
+        const errorMsg = "I'm not sure what type of emergency this is. Please try describing it differently or use the quick action buttons.";
+        addMessage('assistant', errorMsg);
+        speak(errorMsg);
       }
     } catch (error) {
       console.error('Error calling edge function:', error);

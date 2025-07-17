@@ -58,8 +58,11 @@ export const useSpeechRecognition = ({
         console.error('Speech recognition error:', event.error);
         setIsListening(false);
         
-        if (onError) {
-          onError(event.error);
+        // Don't show error for 'no-speech' - it's normal when user stops talking
+        if (event.error !== 'no-speech') {
+          if (onError) {
+            onError(event.error);
+          }
         }
       };
       
