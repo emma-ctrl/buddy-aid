@@ -16,52 +16,56 @@ interface ConversationHistoryProps {
 export const ConversationHistory = ({ messages }: ConversationHistoryProps) => {
   if (messages.length === 0) {
     return (
-      <Card className="p-6 text-center text-muted-foreground">
-        <p>Conversation will appear here...</p>
-      </Card>
+      <div className="max-w-sm mx-auto">
+        <Card className="p-4 text-center text-muted-foreground">
+          <p className="text-sm">Conversation will appear here...</p>
+        </Card>
+      </div>
     );
   }
 
   return (
-    <Card className="h-48">  {/* Reduced from h-96 to h-48 for mobile */}
-      <ScrollArea className="h-full p-4">
-        <div className="space-y-4">
-          {messages.map((message) => (
-            <div
-              key={message.id}
-              className={`flex gap-3 ${
-                message.type === 'user' ? 'flex-row-reverse' : 'flex-row'
-              }`}
-            >
-              <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${
-                message.type === 'user' 
-                  ? 'bg-primary text-primary-foreground' 
-                  : 'bg-secondary text-secondary-foreground'
-              }`}>
-                {message.type === 'user' ? (
-                  <User className="w-4 h-4" />
-                ) : (
-                  <Bot className="w-4 h-4" />
-                )}
-              </div>
-              <div className={`flex-1 max-w-[80%] ${
-                message.type === 'user' ? 'text-right' : 'text-left'
-              }`}>
-                <div className={`inline-block p-3 rounded-lg ${
-                  message.type === 'user'
-                    ? 'bg-primary text-primary-foreground'
+    <div className="max-w-sm mx-auto">
+      <Card className="h-48">
+        <ScrollArea className="h-full p-3">
+          <div className="space-y-3">
+            {messages.map((message) => (
+              <div
+                key={message.id}
+                className={`flex gap-2 ${
+                  message.type === 'user' ? 'flex-row-reverse' : 'flex-row'
+                }`}
+              >
+                <div className={`flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center ${
+                  message.type === 'user' 
+                    ? 'bg-primary text-primary-foreground' 
                     : 'bg-secondary text-secondary-foreground'
                 }`}>
-                  <p className="text-sm">{message.content}</p>
+                  {message.type === 'user' ? (
+                    <User className="w-3 h-3" />
+                  ) : (
+                    <Bot className="w-3 h-3" />
+                  )}
                 </div>
-                <p className="text-xs text-muted-foreground mt-1">
-                  {message.timestamp.toLocaleTimeString()}
-                </p>
+                <div className={`flex-1 max-w-[75%] ${
+                  message.type === 'user' ? 'text-right' : 'text-left'
+                }`}>
+                  <div className={`inline-block p-2 rounded-lg ${
+                    message.type === 'user'
+                      ? 'bg-primary text-primary-foreground'
+                      : 'bg-secondary text-secondary-foreground'
+                  }`}>
+                    <p className="text-xs leading-relaxed">{message.content}</p>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {message.timestamp.toLocaleTimeString()}
+                  </p>
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
-      </ScrollArea>
-    </Card>
+            ))}
+          </div>
+        </ScrollArea>
+      </Card>
+    </div>
   );
 };
