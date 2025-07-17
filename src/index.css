@@ -134,7 +134,7 @@
 @layer components {
   /* Voice button with pulse animation */
   .voice-button {
-    @apply relative w-32 h-32 rounded-full shadow-lg cursor-pointer transition-all duration-300;
+    @apply relative w-32 h-32 rounded-full shadow-lg cursor-pointer transition-all duration-300 flex items-center justify-center;
     background: var(--gradient-voice);
     box-shadow: var(--shadow-voice);
   }
