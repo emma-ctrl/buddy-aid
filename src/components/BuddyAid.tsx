@@ -167,9 +167,6 @@ const BuddyAid = () => {
           <p className="text-lg font-medium text-foreground mb-2">
             {isProcessing ? 'Processing...' : 'Tell me, what\'s happening?'}
           </p>
-          <p className="text-sm text-muted-foreground">
-            {isProcessing ? 'Analyzing your description' : 'I\'m here to help'}
-          </p>
         </div>
 
       </div>
@@ -195,14 +192,6 @@ const BuddyAid = () => {
 
       {/* Quick Action Buttons - Smaller and Mobile-Friendly */}
       <div className="mt-8 animate-fade-in-delayed-2">
-        <div className="text-center mb-4">
-          <p className="text-sm font-medium text-foreground mb-1">
-            Quick suggestions
-          </p>
-          <p className="text-xs text-muted-foreground">
-            Tap for instant guidance
-          </p>
-        </div>
         <div className="grid grid-cols-2 gap-3 max-w-sm mx-auto">
           {/* Not breathing */}
           <button
@@ -252,7 +241,7 @@ const BuddyAid = () => {
               <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
                 <Heart className="w-4 h-4 text-primary" />
               </div>
-              <span className="text-xs font-medium">Unconscious</span>
+              <span className="text-xs font-medium">Unconscious still breathing</span>
             </div>
           </button>
         </div>
@@ -274,7 +263,7 @@ const BuddyAid = () => {
       {/* Bottom Status */}
       <div className="mt-6 text-center animate-fade-in-delayed-3">
         <p className="text-xs text-muted-foreground">
-          {isListening ? 'Listening... tap to stop' : 'Tap the microphone to start'}
+          {isListening ? 'Listening... tap to stop' : ''}
         </p>
       </div>
     </div>
