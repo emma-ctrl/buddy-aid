@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Mic, MicOff, Phone, Heart, Droplets, Users, AlertTriangle, Baby } from 'lucide-react';
+import { Mic, MicOff, Phone, Heart, Droplets, Users } from 'lucide-react';
 import EmergencyProtocols from './EmergencyProtocols';
 
 const BuddyAid = () => {
@@ -77,33 +77,15 @@ const BuddyAid = () => {
 
       {/* Quick Action Buttons */}
       <div className="mt-12 animate-fade-in-delayed-2">
+        <div className="text-center mb-6">
+          <p className="text-lg font-medium text-foreground mb-2">
+            Quick suggestions
+          </p>
+          <p className="text-sm text-muted-foreground">
+            Tap any scenario for step-by-step guidance
+          </p>
+        </div>
         <div className="grid grid-cols-2 gap-4 max-w-md mx-auto">
-          {/* Adult Choking */}
-          <button
-            onClick={() => handleQuickAction('adult-choking')}
-            className="suggestion-button"
-          >
-            <div className="flex flex-col items-center space-y-2">
-              <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
-                <AlertTriangle className="w-5 h-5 text-primary" />
-              </div>
-              <span className="text-sm font-medium">Adult choking</span>
-            </div>
-          </button>
-
-          {/* Baby Choking */}
-          <button
-            onClick={() => handleQuickAction('baby-choking')}
-            className="suggestion-button"
-          >
-            <div className="flex flex-col items-center space-y-2">
-              <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
-                <Baby className="w-5 h-5 text-primary" />
-              </div>
-              <span className="text-sm font-medium">Baby choking</span>
-            </div>
-          </button>
-
           {/* Not breathing */}
           <button
             onClick={() => handleQuickAction('not-breathing')}
