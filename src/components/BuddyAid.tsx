@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Mic, MicOff, Phone, Heart, Droplets, Users, AlertTriangle } from 'lucide-react';
 import EmergencyProtocols from './EmergencyProtocols';
 import { supabase } from '@/integrations/supabase/client';
@@ -27,6 +27,9 @@ const BuddyAid = () => {
     replay 
   } = useTextToSpeech();
 
+  const speechTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const lastTranscriptRef = useRef<string>('');
+  
   const { 
     isListening, 
     isSupported: speechSupported, 
@@ -34,9 +37,23 @@ const BuddyAid = () => {
   } = useSpeechRecognition({
     onResult: (result) => {
       console.log('Speech result:', result);
+      
       if (result.isFinal && result.transcript) {
-        // Route to appropriate handler based on current state
-        handleGuidanceResponse(result.transcript);
+        lastTranscriptRef.current = result.transcript;
+        
+        // Clear any existing timeout
+        if (speechTimeoutRef.current) {
+          clearTimeout(speechTimeoutRef.current);
+        }
+        
+        // Add a delay during guidance mode to ensure user has finished speaking
+        const delay = isInGuidance ? 2000 : 500; // 2 seconds during guidance, 0.5 seconds otherwise
+        
+        speechTimeoutRef.current = setTimeout(() => {
+          // Route to appropriate handler based on current state
+          handleGuidanceResponse(lastTranscriptRef.current);
+          lastTranscriptRef.current = '';
+        }, delay);
       }
     },
     onError: (error) => {
