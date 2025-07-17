@@ -1,7 +1,7 @@
-import BuddyAid from '@/components/BuddyAid';
+import BuddyAidRealtime from '@/components/BuddyAidRealtime';
 
 const Index = () => {
-  return <BuddyAid />;
+  return <BuddyAidRealtime />;
 };
 
 export default Index;
