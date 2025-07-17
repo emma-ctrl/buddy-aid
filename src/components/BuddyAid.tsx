@@ -1,22 +1,37 @@
 import { useState } from 'react';
-import { Mic, MicOff, Phone, Heart, Droplets, Users } from 'lucide-react';
+import { Mic, MicOff, Phone, Heart, Droplets, Users, AlertTriangle, Baby } from 'lucide-react';
+import EmergencyProtocols from './EmergencyProtocols';
 
 const BuddyAid = () => {
   const [isListening, setIsListening] = useState(false);
+  const [activeEmergency, setActiveEmergency] = useState<string | null>(null);
 
   const handleVoiceToggle = () => {
     setIsListening(!isListening);
   };
 
-  const handleQuickAction = (action: string) => {
-    console.log(`Quick action: ${action}`);
-    // In a real app, this would trigger the voice assistant with the specific emergency
+  const handleQuickAction = (emergencyType: string) => {
+    setActiveEmergency(emergencyType);
   };
 
   const handleEmergencyCall = () => {
-    console.log('Emergency call initiated');
     // In a real app, this would initiate emergency services call
+    window.location.href = 'tel:999';
   };
+
+  const handleBackToMenu = () => {
+    setActiveEmergency(null);
+  };
+
+  // Show emergency protocols if an emergency is selected
+  if (activeEmergency) {
+    return (
+      <EmergencyProtocols 
+        emergencyType={activeEmergency} 
+        onBack={handleBackToMenu}
+      />
+    );
+  }
 
   return (
     <div className="min-h-screen px-6 py-8 flex flex-col">
@@ -62,7 +77,33 @@ const BuddyAid = () => {
 
       {/* Quick Action Buttons */}
       <div className="mt-12 animate-fade-in-delayed-2">
-        <div className="grid grid-cols-2 gap-4 max-w-sm mx-auto">
+        <div className="grid grid-cols-2 gap-4 max-w-md mx-auto">
+          {/* Adult Choking */}
+          <button
+            onClick={() => handleQuickAction('adult-choking')}
+            className="suggestion-button"
+          >
+            <div className="flex flex-col items-center space-y-2">
+              <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
+                <AlertTriangle className="w-5 h-5 text-primary" />
+              </div>
+              <span className="text-sm font-medium">Adult choking</span>
+            </div>
+          </button>
+
+          {/* Baby Choking */}
+          <button
+            onClick={() => handleQuickAction('baby-choking')}
+            className="suggestion-button"
+          >
+            <div className="flex flex-col items-center space-y-2">
+              <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
+                <Baby className="w-5 h-5 text-primary" />
+              </div>
+              <span className="text-sm font-medium">Baby choking</span>
+            </div>
+          </button>
+
           {/* Not breathing */}
           <button
             onClick={() => handleQuickAction('not-breathing')}
