@@ -5,9 +5,9 @@ import { supabase } from '@/integrations/supabase/client';
 import { ConversationHistory, Message } from './ConversationHistory';
 import { VoiceControls } from './VoiceControls';
 import { useTextToSpeech } from '@/hooks/useTextToSpeech';
+import { useSpeechRecognition } from '@/hooks/useSpeechRecognition';
 
 const BuddyAid = () => {
-  const [isListening, setIsListening] = useState(false);
   const [activeEmergency, setActiveEmergency] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [currentResponse, setCurrentResponse] = useState<string>('');
@@ -25,6 +25,27 @@ const BuddyAid = () => {
     replay 
   } = useTextToSpeech();
 
+  const { 
+    isListening, 
+    isSupported: speechSupported, 
+    toggleListening 
+  } = useSpeechRecognition({
+    onResult: (result) => {
+      console.log('Speech result:', result);
+      if (result.isFinal && result.transcript) {
+        processEmergencyDescription(result.transcript);
+      }
+    },
+    onError: (error) => {
+      console.error('Speech recognition error:', error);
+      const errorMsg = "I'm having trouble hearing you. Please try again or use the quick action buttons.";
+      addMessage('assistant', errorMsg);
+      speak(errorMsg);
+    },
+    continuous: false,
+    interimResults: true
+  });
+
   const addMessage = (type: 'user' | 'assistant', content: string) => {
     const message: Message = {
       id: Date.now().toString(),
@@ -37,7 +58,14 @@ const BuddyAid = () => {
   };
 
   const handleVoiceToggle = () => {
-    setIsListening(!isListening);
+    if (!speechSupported) {
+      const errorMsg = "Speech recognition is not supported in this browser. Please use the quick action buttons or try a different browser.";
+      addMessage('assistant', errorMsg);
+      speak(errorMsg);
+      return;
+    }
+    
+    toggleListening();
   };
 
   const handleQuickAction = (emergencyType: string) => {
