@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import { Mic, MicOff, Phone, Heart, Droplets, Users } from 'lucide-react';
 import EmergencyProtocols from './EmergencyProtocols';
+import { supabase } from '@/integrations/supabase/client';
 
 const BuddyAid = () => {
   const [isListening, setIsListening] = useState(false);
   const [activeEmergency, setActiveEmergency] = useState<string | null>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const handleVoiceToggle = () => {
     setIsListening(!isListening);
@@ -21,6 +23,30 @@ const BuddyAid = () => {
 
   const handleBackToMenu = () => {
     setActiveEmergency(null);
+  };
+
+  const processEmergencyDescription = async (description: string) => {
+    if (!description.trim()) return;
+    
+    setIsProcessing(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('process-emergency-description', {
+        body: { description }
+      });
+
+      if (error) {
+        console.error('Error processing emergency:', error);
+        return;
+      }
+
+      if (data?.emergencyType) {
+        setActiveEmergency(data.emergencyType);
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   // Show emergency protocols if an emergency is selected
@@ -67,10 +93,44 @@ const BuddyAid = () => {
         {/* Prompt Text */}
         <div className="text-center">
           <p className="text-xl font-medium text-foreground mb-2">
-            Tell me, what's happening?
+            {isProcessing ? 'Processing...' : 'Tell me, what\'s happening?'}
           </p>
           <p className="text-base text-muted-foreground">
-            I'm here to help
+            {isProcessing ? 'Analyzing your description' : 'I\'m here to help'}
+          </p>
+        </div>
+
+        {/* Demo Input for Testing OpenAI Integration */}
+        <div className="mt-6 max-w-md mx-auto">
+          <div className="flex gap-2">
+            <input
+              type="text"
+              placeholder="Describe the emergency situation..."
+              className="flex-1 px-3 py-2 border border-input rounded-md text-sm bg-background text-foreground"
+              onKeyPress={(e) => {
+                if (e.key === 'Enter') {
+                  processEmergencyDescription(e.currentTarget.value);
+                  e.currentTarget.value = '';
+                }
+              }}
+              disabled={isProcessing}
+            />
+            <button
+              onClick={() => {
+                const input = document.querySelector('input[type="text"]') as HTMLInputElement;
+                if (input) {
+                  processEmergencyDescription(input.value);
+                  input.value = '';
+                }
+              }}
+              disabled={isProcessing}
+              className="px-4 py-2 bg-primary text-primary-foreground rounded-md text-sm hover:bg-primary/90 disabled:opacity-50"
+            >
+              {isProcessing ? 'Processing...' : 'Submit'}
+            </button>
+          </div>
+          <p className="text-xs text-muted-foreground mt-1 text-center">
+            Try: "person not breathing", "severe bleeding", "someone choking"
           </p>
         </div>
       </div>
