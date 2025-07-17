@@ -456,79 +456,22 @@ const BuddyAid = () => {
         />
       </div>
 
-      {/* Conversation History */}
-      <div className="mt-4">
+      {/* Conversation History - Extended */}
+      <div className="mt-4 flex-1">
         <ConversationHistory messages={messages} />
       </div>
 
-      {/* Quick Action Buttons - Smaller and Mobile-Friendly */}
-      <div className="mt-8 animate-fade-in-delayed-2">
-        <div className="grid grid-cols-2 gap-3 max-w-sm mx-auto">
-          {/* Not breathing */}
-          <button
-            onClick={() => handleQuickAction('not-breathing')}
-            className="p-3 rounded-lg bg-secondary hover:bg-secondary/80 transition-colors text-center"
-          >
-            <div className="flex flex-col items-center space-y-1">
-              <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
-                <Users className="w-4 h-4 text-primary" />
-              </div>
-              <span className="text-xs font-medium">Not breathing</span>
-            </div>
-          </button>
-
-          {/* Severe bleeding */}
-          <button
-            onClick={() => handleQuickAction('severe-bleeding')}
-            className="p-3 rounded-lg bg-secondary hover:bg-secondary/80 transition-colors text-center"
-          >
-            <div className="flex flex-col items-center space-y-1">
-              <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
-                <Droplets className="w-4 h-4 text-primary" />
-              </div>
-              <span className="text-xs font-medium">Severe bleeding</span>
-            </div>
-          </button>
-
-          {/* Choking */}
-          <button
-            onClick={() => handleQuickAction('adult-choking')}
-            className="p-3 rounded-lg bg-secondary hover:bg-secondary/80 transition-colors text-center"
-          >
-            <div className="flex flex-col items-center space-y-1">
-              <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
-                <AlertTriangle className="w-4 h-4 text-primary" />
-              </div>
-              <span className="text-xs font-medium">Choking</span>
-            </div>
-          </button>
-
-          {/* Unconscious, still breathing */}
-          <button
-            onClick={() => handleQuickAction('unconscious-breathing')}
-            className="p-3 rounded-lg bg-secondary hover:bg-secondary/80 transition-colors text-center"
-          >
-            <div className="flex flex-col items-center space-y-1">
-              <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
-                <Heart className="w-4 h-4 text-primary" />
-              </div>
-              <span className="text-xs font-medium">Unconscious still breathing</span>
-            </div>
-          </button>
-        </div>
-        
-        {/* Emergency Call Button - Separate and prominent */}
-        <div className="mt-4 max-w-sm mx-auto">
-          <button
-            onClick={handleEmergencyCall}
-            className="w-full p-3 rounded-lg bg-red-600 hover:bg-red-700 text-white transition-colors"
-          >
-            <div className="flex items-center justify-center space-x-2">
-              <Phone className="w-4 h-4" />
-              <span className="text-sm font-medium">Call Emergency Services</span>
-            </div>
-          </button>
-        </div>
+      {/* Emergency Call Button - Separate and prominent */}
+      <div className="mt-4 max-w-sm mx-auto animate-fade-in-delayed-2">
+        <button
+          onClick={handleEmergencyCall}
+          className="w-full p-3 rounded-lg bg-red-600 hover:bg-red-700 text-white transition-colors"
+        >
+          <div className="flex items-center justify-center space-x-2">
+            <Phone className="w-4 h-4" />
+            <span className="text-sm font-medium">Call Emergency Services</span>
+          </div>
+        </button>
       </div>
 
       {/* Bottom Status */}
