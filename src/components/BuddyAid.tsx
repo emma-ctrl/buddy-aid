@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Phone, Heart, Droplets, Users } from 'lucide-react';
+import { Mic, MicOff, Phone, Heart, Droplets, Users } from 'lucide-react';
 
 const BuddyAid = () => {
   const [isListening, setIsListening] = useState(false);
@@ -41,10 +41,10 @@ const BuddyAid = () => {
             className={`voice-button ${isListening ? 'active' : ''}`}
             aria-label={isListening ? 'Stop listening' : 'Start listening'}
           >
-           {isListening ? (
-              <span className="text-4xl">🤗</span>
+            {isListening ? (
+              <MicOff className="w-12 h-12 text-white" />
             ) : (
-              <span className="text-4xl">😊</span>
+              <Mic className="w-12 h-12 text-white" />
             )}
           </button>
         </div>
@@ -120,7 +120,7 @@ const BuddyAid = () => {
       {/* Bottom Status */}
       <div className="mt-8 text-center animate-fade-in-delayed-3">
         <p className="text-xs text-muted-foreground">
-          {isListening ? 'Listening... tap to stop' : 'Tap BuddyAid to start'}
+          {isListening ? 'Listening... tap to stop' : 'Tap the microphone to start'}
         </p>
       </div>
     </div>
