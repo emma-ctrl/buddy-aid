@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Mic, MicOff, Phone, Heart, Droplets, Users } from 'lucide-react';
+import { Mic, MicOff, Phone, Heart, Droplets, Users, AlertTriangle } from 'lucide-react';
 import EmergencyProtocols from './EmergencyProtocols';
 import { supabase } from '@/integrations/supabase/client';
 import { ConversationHistory, Message } from './ConversationHistory';
@@ -121,13 +121,13 @@ const BuddyAid = () => {
   }
 
   return (
-    <div className="min-h-screen px-6 py-8 flex flex-col">
+    <div className="min-h-screen px-4 py-6 flex flex-col">
       {/* Header */}
-      <div className="text-center mb-12 animate-fade-in">
-        <h1 className="text-2xl font-bold text-foreground mb-2">
+      <div className="text-center mb-8 animate-fade-in">
+        <h1 className="text-xl font-bold text-foreground mb-2">
           Hi, BuddyAid here
         </h1>
-        <p className="text-base font-medium text-foreground leading-relaxed max-w-sm mx-auto">
+        <p className="text-sm font-medium text-foreground leading-relaxed max-w-sm mx-auto">
           <span className="gradient-text">
             I hope you never need me but in an emergency I'm here for you
           </span>
@@ -135,7 +135,7 @@ const BuddyAid = () => {
       </div>
 
       {/* Voice Button Section */}
-      <div className="flex-1 flex flex-col items-center justify-center space-y-8 animate-fade-in-delayed">
+      <div className="flex flex-col items-center justify-center space-y-6 animate-fade-in-delayed">
         {/* Large Voice Button */}
         <div className="relative flex items-center justify-center">
           <button
@@ -154,8 +154,8 @@ const BuddyAid = () => {
         {/* Voice Status Indicator */}
         <div className="w-full max-w-md">
           {(isPlaying || isPaused || ttsLoading) && (
-            <div className="flex items-center justify-center">
-              <div className={`w-4 h-4 rounded-full ${
+            <div className="flex items-center justify-center mb-2">
+              <div className={`w-3 h-3 rounded-full ${
                 isPlaying ? 'bg-green-500 animate-pulse' : 'bg-gray-400'
               }`} />
             </div>
@@ -164,20 +164,20 @@ const BuddyAid = () => {
 
         {/* Prompt Text */}
         <div className="text-center">
-          <p className="text-xl font-medium text-foreground mb-2">
+          <p className="text-lg font-medium text-foreground mb-2">
             {isProcessing ? 'Processing...' : 'Tell me, what\'s happening?'}
           </p>
-          <p className="text-base text-muted-foreground">
+          <p className="text-sm text-muted-foreground">
             {isProcessing ? 'Analyzing your description' : 'I\'m here to help'}
           </p>
         </div>
 
         {/* Demo Input for Testing OpenAI Integration */}
-        <div className="mt-6 max-w-md mx-auto">
+        <div className="mt-4 max-w-md mx-auto">
           <div className="flex gap-2">
             <input
               type="text"
-              placeholder="Describe the emergency situation..."
+              placeholder="Describe the emergency..."
               className="flex-1 px-3 py-2 border border-input rounded-md text-sm bg-background text-foreground"
               onKeyPress={(e) => {
                 if (e.key === 'Enter') {
@@ -196,7 +196,7 @@ const BuddyAid = () => {
                 }
               }}
               disabled={isProcessing}
-              className="px-4 py-2 bg-primary text-primary-foreground rounded-md text-sm hover:bg-primary/90 disabled:opacity-50"
+              className="px-3 py-2 bg-primary text-primary-foreground rounded-md text-sm hover:bg-primary/90 disabled:opacity-50"
             >
               {isProcessing ? 'Processing...' : 'Submit'}
             </button>
@@ -208,87 +208,104 @@ const BuddyAid = () => {
       </div>
 
       {/* Voice Controls */}
-      <VoiceControls
-        isPlaying={isPlaying}
-        isPaused={isPaused}
-        isLoading={ttsLoading}
-        onPause={pause}
-        onResume={resume}
-        onStop={stop}
-        onReplay={replay}
-        currentText={currentText}
-      />
+      <div className="mt-4">
+        <VoiceControls
+          isPlaying={isPlaying}
+          isPaused={isPaused}
+          isLoading={ttsLoading}
+          onPause={pause}
+          onResume={resume}
+          onStop={stop}
+          onReplay={replay}
+          currentText={currentText}
+        />
+      </div>
 
       {/* Conversation History */}
-      <ConversationHistory messages={messages} />
+      <div className="mt-4">
+        <ConversationHistory messages={messages} />
+      </div>
 
-      {/* Quick Action Buttons */}
-      <div className="mt-12 animate-fade-in-delayed-2">
-        <div className="text-center mb-6">
-          <p className="text-lg font-medium text-foreground mb-2">
+      {/* Quick Action Buttons - Smaller and Mobile-Friendly */}
+      <div className="mt-8 animate-fade-in-delayed-2">
+        <div className="text-center mb-4">
+          <p className="text-sm font-medium text-foreground mb-1">
             Quick suggestions
           </p>
-          <p className="text-sm text-muted-foreground">
-            Tap any scenario for step-by-step guidance
+          <p className="text-xs text-muted-foreground">
+            Tap for instant guidance
           </p>
         </div>
-        <div className="grid grid-cols-2 gap-4 max-w-md mx-auto">
+        <div className="grid grid-cols-2 gap-3 max-w-sm mx-auto">
           {/* Not breathing */}
           <button
             onClick={() => handleQuickAction('not-breathing')}
-            className="suggestion-button"
+            className="p-3 rounded-lg bg-secondary hover:bg-secondary/80 transition-colors text-center"
           >
-            <div className="flex flex-col items-center space-y-2">
-              <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
-                <Users className="w-5 h-5 text-primary" />
+            <div className="flex flex-col items-center space-y-1">
+              <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
+                <Users className="w-4 h-4 text-primary" />
               </div>
-              <span className="text-sm font-medium">Not breathing</span>
+              <span className="text-xs font-medium">Not breathing</span>
             </div>
           </button>
 
           {/* Severe bleeding */}
           <button
             onClick={() => handleQuickAction('severe-bleeding')}
-            className="suggestion-button"
+            className="p-3 rounded-lg bg-secondary hover:bg-secondary/80 transition-colors text-center"
           >
-            <div className="flex flex-col items-center space-y-2">
-              <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
-                <Droplets className="w-5 h-5 text-primary" />
+            <div className="flex flex-col items-center space-y-1">
+              <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
+                <Droplets className="w-4 h-4 text-primary" />
               </div>
-              <span className="text-sm font-medium">Severe bleeding</span>
+              <span className="text-xs font-medium">Severe bleeding</span>
+            </div>
+          </button>
+
+          {/* Choking */}
+          <button
+            onClick={() => handleQuickAction('adult-choking')}
+            className="p-3 rounded-lg bg-secondary hover:bg-secondary/80 transition-colors text-center"
+          >
+            <div className="flex flex-col items-center space-y-1">
+              <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
+                <AlertTriangle className="w-4 h-4 text-primary" />
+              </div>
+              <span className="text-xs font-medium">Choking</span>
             </div>
           </button>
 
           {/* Unconscious, still breathing */}
           <button
             onClick={() => handleQuickAction('unconscious-breathing')}
-            className="suggestion-button"
+            className="p-3 rounded-lg bg-secondary hover:bg-secondary/80 transition-colors text-center"
           >
-            <div className="flex flex-col items-center space-y-2">
-              <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
-                <Heart className="w-5 h-5 text-primary" />
+            <div className="flex flex-col items-center space-y-1">
+              <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
+                <Heart className="w-4 h-4 text-primary" />
               </div>
-              <span className="text-sm font-medium">Unconscious, still breathing</span>
+              <span className="text-xs font-medium">Unconscious</span>
             </div>
           </button>
-
-          {/* Emergency Call Button */}
+        </div>
+        
+        {/* Emergency Call Button - Separate and prominent */}
+        <div className="mt-4 max-w-sm mx-auto">
           <button
             onClick={handleEmergencyCall}
-            className="emergency-button"
+            className="w-full p-3 rounded-lg bg-red-600 hover:bg-red-700 text-white transition-colors"
           >
-            <div className="flex flex-col items-center space-y-2">
-              <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
-                <Phone className="w-5 h-5 text-white" />
-              </div>
-              <span className="text-sm font-medium">📞 Call emergency services</span>
+            <div className="flex items-center justify-center space-x-2">
+              <Phone className="w-4 h-4" />
+              <span className="text-sm font-medium">Call Emergency Services</span>
             </div>
           </button>
         </div>
       </div>
 
       {/* Bottom Status */}
-      <div className="mt-8 text-center animate-fade-in-delayed-3">
+      <div className="mt-6 text-center animate-fade-in-delayed-3">
         <p className="text-xs text-muted-foreground">
           {isListening ? 'Listening... tap to stop' : 'Tap the microphone to start'}
         </p>

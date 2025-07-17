@@ -23,7 +23,7 @@ export const ConversationHistory = ({ messages }: ConversationHistoryProps) => {
   }
 
   return (
-    <Card className="h-96">
+    <Card className="h-48">  {/* Reduced from h-96 to h-48 for mobile */}
       <ScrollArea className="h-full p-4">
         <div className="space-y-4">
           {messages.map((message) => (
