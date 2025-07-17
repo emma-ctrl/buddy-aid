@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Mic, MicOff, Phone, Heart, Droplets, Users } from 'lucide-react';
+import { Phone, Heart, Droplets, Users } from 'lucide-react';
 
 const BuddyAid = () => {
   const [isListening, setIsListening] = useState(false);
@@ -22,12 +22,14 @@ const BuddyAid = () => {
     <div className="min-h-screen px-6 py-8 flex flex-col">
       {/* Header */}
       <div className="text-center mb-12 animate-fade-in">
-        <h1 className="text-lg font-medium text-foreground leading-relaxed max-w-sm mx-auto">
-          Hi, BuddyAid here...{' '}
+        <h1 className="text-2xl font-bold text-foreground mb-2">
+          Hi, BuddyAid here
+        </h1>
+        <p className="text-base font-medium text-foreground leading-relaxed max-w-sm mx-auto">
           <span className="gradient-text">
             I hope you never need me but in an emergency I'm here for you
           </span>
-        </h1>
+        </p>
       </div>
 
       {/* Voice Button Section */}
@@ -39,10 +41,10 @@ const BuddyAid = () => {
             className={`voice-button ${isListening ? 'active' : ''}`}
             aria-label={isListening ? 'Stop listening' : 'Start listening'}
           >
-            {isListening ? (
-              <MicOff className="w-12 h-12 text-white" />
+           {isListening ? (
+              <span className="text-4xl">🤗</span>
             ) : (
-              <Mic className="w-12 h-12 text-white" />
+              <span className="text-4xl">😊</span>
             )}
           </button>
         </div>
@@ -50,7 +52,7 @@ const BuddyAid = () => {
         {/* Prompt Text */}
         <div className="text-center">
           <p className="text-xl font-medium text-foreground mb-2">
-            What's happening?
+            Tell me, what's happening?
           </p>
           <p className="text-base text-muted-foreground">
             I'm here to help
@@ -118,7 +120,7 @@ const BuddyAid = () => {
       {/* Bottom Status */}
       <div className="mt-8 text-center animate-fade-in-delayed-3">
         <p className="text-xs text-muted-foreground">
-          {isListening ? 'Listening... tap to stop' : 'Tap the microphone to start'}
+          {isListening ? 'Listening... tap to stop' : 'Tap BuddyAid to start'}
         </p>
       </div>
     </div>
