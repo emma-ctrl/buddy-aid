@@ -261,15 +261,15 @@ const EmergencyProtocols = ({ emergencyType, onBack, messages, onAddMessage, tts
   }, [emergencyType]);
 
   return (
-    <div className="min-h-screen px-6 py-8 flex flex-col">
+    <div className="min-h-screen px-4 py-6 flex flex-col">
       {/* Header */}
-      <div className="text-center mb-8">
-        <div className="flex items-center justify-center space-x-2 mb-4">
+      <div className="text-center mb-6">
+        <div className="flex items-center justify-center space-x-2 mb-3">
           {currentProtocol.icon}
-          <h1 className="text-2xl font-bold text-foreground">{currentProtocol.title}</h1>
+          <h1 className="text-lg font-bold text-foreground">{currentProtocol.title}</h1>
         </div>
-        <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-3 mb-4">
-          <p className="text-sm text-destructive font-medium">
+        <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-2 mb-3">
+          <p className="text-xs text-destructive font-medium">
             {currentProtocol.disclaimer}
           </p>
         </div>
@@ -277,37 +277,37 @@ const EmergencyProtocols = ({ emergencyType, onBack, messages, onAddMessage, tts
 
       {/* Emergency Call Button */}
       {!hasCalledEmergency && (
-        <div className="mb-6">
+        <div className="mb-4">
           <Button 
             onClick={handleEmergencyCall}
             className="w-full bg-destructive hover:bg-destructive/90 text-destructive-foreground"
-            size="lg"
+            size="default"
           >
-            <Phone className="w-5 h-5 mr-2" />
+            <Phone className="w-4 h-4 mr-2" />
             Call 999 / 112 Emergency Services
           </Button>
         </div>
       )}
 
       {/* Step Card */}
-      <Card className="flex-1 mb-6">
-        <CardHeader>
-          <CardTitle className="flex items-center justify-between">
+      <Card className="flex-1 mb-4">
+        <CardHeader className="pb-3">
+          <CardTitle className="flex items-center justify-between text-base">
             <span>Step {currentStep + 1} of {currentProtocol.steps.length}</span>
-            <span className="text-sm text-muted-foreground">
+            <span className="text-xs text-muted-foreground">
               {Math.round(((currentStep + 1) / currentProtocol.steps.length) * 100)}%
             </span>
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <h3 className="text-lg font-semibold text-foreground">
+        <CardContent className="space-y-3">
+          <h3 className="text-base font-semibold text-foreground">
             {currentStepData.title}
           </h3>
-          <p className="text-base text-foreground leading-relaxed">
+          <p className="text-sm text-foreground leading-relaxed">
             {currentStepData.instruction}
           </p>
-          <div className="bg-primary/10 border border-primary/20 rounded-lg p-3">
-            <p className="text-sm text-primary font-medium">
+          <div className="bg-primary/10 border border-primary/20 rounded-lg p-2">
+            <p className="text-xs text-primary font-medium">
               {currentStepData.action}
             </p>
           </div>
@@ -320,11 +320,12 @@ const EmergencyProtocols = ({ emergencyType, onBack, messages, onAddMessage, tts
           onClick={handlePrevious}
           disabled={currentStep === 0}
           variant="outline"
+          size="sm"
         >
           Previous
         </Button>
         
-        <div className="flex space-x-2">
+        <div className="flex space-x-1">
           {currentProtocol.steps.map((_, index) => (
             <div
               key={index}
@@ -336,13 +337,13 @@ const EmergencyProtocols = ({ emergencyType, onBack, messages, onAddMessage, tts
         </div>
 
         {isLastStep ? (
-          <Button onClick={onBack} variant="outline">
+          <Button onClick={onBack} variant="outline" size="sm">
             Back to Menu
           </Button>
         ) : (
-          <Button onClick={handleNext}>
+          <Button onClick={handleNext} size="sm">
             Next
-            <ChevronRight className="w-4 h-4 ml-1" />
+            <ChevronRight className="w-3 h-3 ml-1" />
           </Button>
         )}
       </div>
