@@ -7,6 +7,12 @@ interface TTSState {
   currentText: string;
   isLoading: boolean;
   error: string | null;
+  queueLength: number;
+}
+
+interface QueueItem {
+  text: string;
+  id: string;
 }
 
 export const useTextToSpeech = () => {
@@ -16,10 +22,13 @@ export const useTextToSpeech = () => {
     currentText: '',
     isLoading: false,
     error: null,
+    queueLength: 0,
   });
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const currentAudioUrl = useRef<string | null>(null);
+  const queue = useRef<QueueItem[]>([]);
+  const isProcessing = useRef(false);
 
   const cleanup = useCallback(() => {
     if (audioRef.current) {
@@ -33,38 +42,28 @@ export const useTextToSpeech = () => {
     }
   }, []);
 
-  const handleAudioEnd = useCallback(() => {
-    setState(prev => ({ ...prev, isPlaying: false, isPaused: false }));
-    cleanup();
-  }, [cleanup]);
-
-  const handleAudioError = useCallback((error: any) => {
-    console.error('Audio playback error:', error);
-    setState(prev => ({ 
-      ...prev, 
-      isPlaying: false, 
-      isPaused: false,
-      error: 'Audio playback failed' 
-    }));
-    cleanup();
-  }, [cleanup]);
-
-  const speak = useCallback(async (text: string) => {
-    if (!text.trim()) return;
-
-    // Stop any current playback
-    cleanup();
+  const processQueue = useCallback(async () => {
+    if (isProcessing.current || queue.current.length === 0) return;
+    
+    isProcessing.current = true;
+    const item = queue.current.shift();
+    
+    if (!item) {
+      isProcessing.current = false;
+      return;
+    }
 
     setState(prev => ({ 
       ...prev, 
       isLoading: true, 
-      currentText: text,
-      error: null 
+      currentText: item.text,
+      error: null,
+      queueLength: queue.current.length
     }));
 
     try {
       const { data, error } = await supabase.functions.invoke('text-to-speech', {
-        body: { text }
+        body: { text: item.text }
       });
 
       if (error) {
@@ -105,10 +104,51 @@ export const useTextToSpeech = () => {
       setState(prev => ({ 
         ...prev, 
         isLoading: false,
-        error: error instanceof Error ? error.message : 'Failed to generate speech'
+        error: error instanceof Error ? error.message : 'Failed to generate speech',
+        queueLength: queue.current.length
       }));
+      // Continue processing queue even if one item fails
+      isProcessing.current = false;
+      processQueue();
     }
-  }, [cleanup, handleAudioEnd, handleAudioError]);
+  }, []);
+
+  const handleAudioEnd = useCallback(() => {
+    setState(prev => ({ ...prev, isPlaying: false, isPaused: false }));
+    cleanup();
+    isProcessing.current = false;
+    // Process next item in queue
+    processQueue();
+  }, [cleanup, processQueue]);
+
+  const handleAudioError = useCallback((error: any) => {
+    console.error('Audio playback error:', error);
+    setState(prev => ({ 
+      ...prev, 
+      isPlaying: false, 
+      isPaused: false,
+      error: 'Audio playback failed' 
+    }));
+    cleanup();
+    isProcessing.current = false;
+    // Continue processing queue
+    processQueue();
+  }, [cleanup, processQueue]);
+
+  const speak = useCallback((text: string) => {
+    if (!text.trim()) return;
+
+    const id = Date.now().toString();
+    queue.current.push({ text, id });
+    
+    setState(prev => ({ 
+      ...prev, 
+      queueLength: queue.current.length 
+    }));
+
+    // Start processing if not already processing
+    processQueue();
+  }, [processQueue]);
 
   const pause = useCallback(() => {
     if (audioRef.current && state.isPlaying) {
@@ -125,13 +165,17 @@ export const useTextToSpeech = () => {
   }, [state.isPaused]);
 
   const stop = useCallback(() => {
+    // Clear the queue and stop current playback
+    queue.current = [];
+    isProcessing.current = false;
     cleanup();
     setState(prev => ({ 
       ...prev, 
       isPlaying: false, 
       isPaused: false,
       currentText: '',
-      error: null 
+      error: null,
+      queueLength: 0
     }));
   }, [cleanup]);
 
